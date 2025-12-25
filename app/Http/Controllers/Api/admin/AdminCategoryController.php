@@ -61,13 +61,21 @@ class AdminCategoryController extends Controller
             ]
         );
 
-        $category = Category::create($validated);
+        try {
+            $category = Category::create($validated);
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Thêm danh mục thành công',
-            'data' => $category
-        ], 201);
+            return response()->json([
+                'status' => true,
+                'message' => 'Thêm danh mục thành công',
+                'data' => $category
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Lỗi hệ thống: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -124,13 +132,20 @@ class AdminCategoryController extends Controller
             ]
         );
 
-        $category->update($validated);
+        try {
+            $category->update($validated);
 
         return response()->json([
             'status' => true,
             'message' => 'Đã cập nhật danh mục thành công',
             'data' => $category
         ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Lỗi hệ thống: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
