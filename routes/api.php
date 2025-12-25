@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\client\VariantController;
 
 use App\Http\Controllers\Api\admin\AdminProductController;
 use App\Http\Controllers\Api\admin\AdminCategoryController;
+use App\Http\Controllers\Api\admin\AdminBrandController;
 
 /**
  * Client
@@ -49,4 +50,9 @@ Route::middleware(['auth:sanctum', CheckAdmin::class])
         Route::post('/category', [AdminCategoryController::class, 'store']);
         Route::patch('/category/{id}', [AdminCategoryController::class, 'update']);
         Route::delete('/category/{id}', [AdminCategoryController::class, 'destroy']);
+
+        // Brand
+        Route::get('/brands', [AdminBrandController::class, 'index']);
+        Route::get('/brand/{id}', [AdminBrandController::class, 'show']);
+        Route::post('/brand', [AdminBrandController::class, 'store']);
     });

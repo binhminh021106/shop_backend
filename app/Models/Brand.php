@@ -22,4 +22,8 @@ class Brand extends Model
         'order_number',
         'status'
     ];
+
+    protected $casts = [
+        'order_number' => 'integer'
+    ];
 }
