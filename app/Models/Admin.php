@@ -3,15 +3,16 @@
 namespace App\Models;
 
 use App\Models\Role;
-use Illuminate\Database\Eloquent\Model;
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Admin extends Model
+class Admin extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\AdminFactory> */
-    use HasFactory;
-    use SoftDeletes;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     protected $table = 'admins';
 
@@ -27,12 +28,16 @@ class Admin extends Model
         'address'
     ];
 
+    protected $hidden = [
+        'password'
+    ];
+
     /**
      * Tự động ép kiểu 
      */
     protected $casts = [
         'role_id' => 'integer',
-        'phone' => 'integer',
+        'email_verified_at' => 'datetime'
     ];
 
     /**
