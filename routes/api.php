@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\client\VariantController;
 use App\Http\Controllers\Api\admin\AdminProductController;
 use App\Http\Controllers\Api\admin\AdminCategoryController;
 use App\Http\Controllers\Api\admin\AdminBrandController;
+use App\Http\Controllers\Api\admin\AdminCouponController;
 
 /**
  * Client
@@ -57,4 +58,11 @@ Route::middleware(['auth:sanctum', CheckAdmin::class])
         Route::post('/brand', [AdminBrandController::class, 'store']);
         Route::patch('/brand/{id}', [AdminBrandController::class, 'update']);
         Route::delete('/brand/{id}', [AdminBrandController::class, 'destroy']);
+
+        // Coupon
+        Route::get('/coupons', [AdminCouponController::class, 'index']);
+        Route::get('/coupon/{id}', [AdminCouponController::class, 'show']);
+        Route::post('/coupon', [AdminCouponController::class, 'store']);
+        Route::patch('/coupon/{id}', [AdminCouponController::class, 'update']);
+        Route::delete('/coupon/{id}', [AdminCouponController::class, 'destroy']);
     });

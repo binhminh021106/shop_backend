@@ -21,7 +21,7 @@ class Coupon extends Model
         'type', // Kiểu mã giảm giá (%,...)
         'value', // Giảm bao nhiêu
         'usage_limit', // Giới hạn sử dụng
-        'usage_count', // Số lượng sử dụng
+        'usage_count', // Số lượt đã sử dụng
         'usage_limit_per_user', // Số lượng sử dụng cho từng user
         'expires_at', // Ngày hết hạn
     ];
