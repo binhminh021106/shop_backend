@@ -126,13 +126,43 @@ class AdminBrandController extends Controller
         $validated = $request->validate(
             [
                 'name' => [
-                    'sometime',
+                    'sometimes',
                     'required',
                     'string',
                     'max:100',
                     Rule::unique('brands', 'name')->ignore($id)->whereNull('deleted_at')
                 ],
-                ''
+                'slug' => [
+                    'sometimes',
+                    'required',
+                    'string',
+                    'max:50'
+                ],
+                'description' => [
+                    'nullable',
+                    'string'
+                ],
+                'logo_url' => [
+                    'sometimes',
+                    'required',
+                    'image',
+                    'mimes:jpeg,png,jpg,gif,svg',
+                    'max:5120'
+                ],
+                'order_number' => [
+                    'sometimes',
+                    'required',
+                    'integer',
+                    'min:0',
+                    Rule::unique('brands', 'order_number')->ignore($id)->whereNull('deleted_at')
+                ],
+                'status' => [
+                    'sometimes',
+                    'required',
+                    'string',
+                    'max:50',
+                    'in:active,inactive'
+                ]
             ],
             [
                 'required' => ':attribute không được để trống',
@@ -153,6 +183,34 @@ class AdminBrandController extends Controller
                 'status' => 'Trạng thái'
             ]
         );
+
+        try {
+
+            if ($request->hasFile('logo_url')) {
+
+                if ($brand->logo_url && Storage::disk('public')->exists($brand->logo_url)) {
+                    Storage::disk('public')->delete($brand->logo_url);
+                }
+
+                $path = $request->file('logo_url')->store('brand', 'public');
+                $validated['logo_url'] = $path;
+            }
+
+            $brand->update($validated);
+
+            $brand->logo_full_url = Storage::url($brand->logo_url);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Cập nhật thương hiệu thành công',
+                'data' => $brand
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Lỗi hệ thống: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -160,6 +218,25 @@ class AdminBrandController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $brand = Brand::findOrFail($id);
+
+        try {
+            if ($brand->logo_url && Storage::disk('public')->exists($brand->logo_url)) {
+                Storage::disk('public')->delete($brand->logo_url);
+            }
+
+            $brand->delete();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Xóa thương hiệu và hình ảnh thành công'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Lỗi hệ thống: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }

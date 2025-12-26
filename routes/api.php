@@ -55,4 +55,6 @@ Route::middleware(['auth:sanctum', CheckAdmin::class])
         Route::get('/brands', [AdminBrandController::class, 'index']);
         Route::get('/brand/{id}', [AdminBrandController::class, 'show']);
         Route::post('/brand', [AdminBrandController::class, 'store']);
+        Route::patch('/brand/{id}', [AdminBrandController::class, 'update']);
+        Route::delete('/brand/{id}', [AdminBrandController::class, 'destroy']);
     });

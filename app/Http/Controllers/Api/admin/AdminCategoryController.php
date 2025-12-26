@@ -69,7 +69,6 @@ class AdminCategoryController extends Controller
                 'message' => 'Thêm danh mục thành công',
                 'data' => $category
             ], 201);
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
@@ -135,11 +134,11 @@ class AdminCategoryController extends Controller
         try {
             $category->update($validated);
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Đã cập nhật danh mục thành công',
-            'data' => $category
-        ]);
+            return response()->json([
+                'status' => true,
+                'message' => 'Đã cập nhật danh mục thành công',
+                'data' => $category
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
@@ -157,18 +156,25 @@ class AdminCategoryController extends Controller
 
         $isParent = Category::where('parent_id', $id)->exists();
 
-        if ($isParent) {
+        try {
+            if ($isParent) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Không thể xóa! Danh mục này đang chứa các danh mục con.'
+                ], 400);
+            }
+
+            $category->delete();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Xoá danh mục thành công'
+            ]);
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Không thể xóa! Danh mục này đang chứa các danh mục con.'
-            ], 400);
+                'message' => 'Lỗi hệ thống: ' . $e->getMessage(),
+            ], 500);
         }
-
-        $category->delete();
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Xoá danh mục thành công'
-        ]);
     }
 }
