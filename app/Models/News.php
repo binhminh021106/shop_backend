@@ -16,7 +16,7 @@ class News extends Model
 
     protected $fillable = [
         'title',
-        'category',
+        'category_id',
         'excerpt', // Đoạn trích
         'content',
         'image_url',
@@ -28,4 +28,15 @@ class News extends Model
         'meta_description',
         'meta_keywords'
     ];
+
+    protected $casts = [
+        'category_id' => 'integer'
+    ];
+
+    /**
+     * Quan hệ với Category New
+     */
+    public function CategoryNew() {
+        return $this->belongsTo(Category_New::class, 'category_id', 'id');
+    }
 }

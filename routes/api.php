@@ -21,6 +21,9 @@ use App\Http\Controllers\Api\admin\AdminProductController;
 use App\Http\Controllers\Api\admin\AdminCategoryController;
 use App\Http\Controllers\Api\admin\AdminBrandController;
 use App\Http\Controllers\Api\admin\AdminCouponController;
+use App\Http\Controllers\Api\admin\AdminNewController;
+use App\Http\Controllers\Api\admin\AdminCategoryNewController;
+use App\Models\Role;
 
 /**
  * Client
@@ -65,4 +68,18 @@ Route::middleware(['auth:sanctum', CheckAdmin::class])
         Route::post('/coupon', [AdminCouponController::class, 'store']);
         Route::patch('/coupon/{id}', [AdminCouponController::class, 'update']);
         Route::delete('/coupon/{id}', [AdminCouponController::class, 'destroy']);
+
+        // New
+        Route::get('/news', [AdminNewController::class, 'index']);
+        Route::get('/new/{id}', [AdminNewController::class, 'show']);
+        Route::post('/new', [AdminNewController::class, 'store']);
+        Route::patch('/new/{id}', [AdminNewController::class, 'update']);
+        Route::delete('/new/{id}', [AdminNewController::class, 'destroy']);
+
+        // Category New
+        Route::get('/categorynews', [AdminCategoryNewController::class, 'index']);
+        Route::get('/categorynew/{id}', [AdminCategoryNewController::class, 'show']);
+        Route::post('/categorynew', [AdminCategoryNewController::class, 'store']);
+        Route::patch('/categorynew/{id}', [AdminCategoryNewController::class, 'update']);
+        Route::delete('/categorynew/{id}', [AdminCategoryNewController::class, 'destroy']);
     });
