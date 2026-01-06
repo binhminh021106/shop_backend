@@ -23,7 +23,8 @@ use App\Http\Controllers\Api\admin\AdminBrandController;
 use App\Http\Controllers\Api\admin\AdminCouponController;
 use App\Http\Controllers\Api\admin\AdminNewController;
 use App\Http\Controllers\Api\admin\AdminCategoryNewController;
-use App\Models\Role;
+use App\Http\Controllers\Api\admin\AdminAccountController;
+
 
 /**
  * Client
@@ -82,4 +83,11 @@ Route::middleware(['auth:sanctum', CheckAdmin::class])
         Route::post('/categorynew', [AdminCategoryNewController::class, 'store']);
         Route::patch('/categorynew/{id}', [AdminCategoryNewController::class, 'update']);
         Route::delete('/categorynew/{id}', [AdminCategoryNewController::class, 'destroy']);
+
+        // Admin Account
+        Route::get('/accountadmins', [AdminAccountController::class, 'index']);
+        Route::get('/accountadmin/{id}', [AdminAccountController::class, 'show']);
+        Route::post('/accountadmin', [AdminAccountController::class, 'store']);
+        Route::patch('/accountadmin/{id}', [AdminAccountController::class, 'update']);
+        Route::delete('/accountadmin/{id}', [AdminAccountController::class, 'destroy']);
     });
