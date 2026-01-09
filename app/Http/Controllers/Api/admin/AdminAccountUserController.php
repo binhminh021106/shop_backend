@@ -2,23 +2,23 @@
 
 namespace App\Http\Controllers\Api\admin;
 
-use App\Models\Admin;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Illuminate\Routing\Controller;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
-class AdminAccountController extends Controller
+class AdminAccountUserController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $admin = Admin::all();
+        $user = User::all();
 
-        return response()->json($admin);
+        return response()->json($user);
     }
 
     /**
@@ -28,37 +28,31 @@ class AdminAccountController extends Controller
     {
         $validated = $request->validate(
             [
-                'fullname' => [
+                'fullName' => [
                     'required',
                     'string',
-                    'max:100',
+                    'max:150',
                 ],
                 'email' => [
                     'required',
-                    'email',
                     'string',
-                    'max:100',
-                    Rule::unique('admins', 'email')->whereNull('deleted_at')
+                    'max:150',
+                    'email',
+                    Rule::unique('users', 'email')->whereNull('deleted_at'),
+                ],
+                'phone' => [
+                    'nullable',
+                    'string',
+                    'max:20',
+                    'regex:/^[0-9]+$/',
+                    Rule::unique('users', 'phone')->whereNull('deleted_at')
                 ],
                 'password' => [
-                    'required',
+                    'nullable',
                     'string',
                     'max:255',
                     'min:8',
                     'regex:/^(?=.*[A-Z])(?=.*\d).+$/'
-                ],
-                'role_id' => [
-                    'required',
-                    'integer',
-                    'min:0',
-                    'exists:roles,id'
-                ],
-                'phone' => [
-                    'required',
-                    'string',
-                    'max:20',
-                    'regex:/^[0-9]+$/',
-                    Rule::unique('admins', 'phone')->whereNull('deleted_at')
                 ],
                 'avatar_url' => [
                     'nullable',
@@ -69,21 +63,25 @@ class AdminAccountController extends Controller
                 'status' => [
                     'required',
                     'string',
-                    'max:30',
+                    'max:20',
                 ],
-                'address' => [
+                'birthday' => [
+                    'nullable',
+                    'date'
+                ],
+                'sex' => [
                     'nullable',
                     'string',
-                    'max:255'
+                    'max:10'
                 ]
             ],
             [
                 'required' => ':attribute không được để trống',
                 'email.unique' => 'Email bạn nhập đã tồn tại',
-                'email.email' => 'Email không đúng định dạng',
-                'password.regex' => 'Mật khẩu phải chứa ít nhất 1 chữ hoa và 1 số',
-                'phone.unique' => 'Số điện thoại đã tồn tại',
+                'email.email' => 'Email bạn nhập không đúng định dạng',
+                'phone.unique' => 'Số điện thoại bạn nhập đã tồn tại',
                 'phone.regex' => 'Số điện thoại chỉ được chứa ký tự số',
+                'password.regex' => 'Mật khẩu phải chứa ít nhất 1 chữ hoa và 1 số',
                 'exists' => ':attribute không tồn tại trong hệ thống',
                 'integer' => ':attribute phải là số',
                 'image' => ':attribute không phải là định dạng hình ảnh',
@@ -101,7 +99,6 @@ class AdminAccountController extends Controller
                 'fullname' => 'Họ và tên',
                 'email' => 'Email',
                 'password' => 'Mật khẩu',
-                'role_id' => 'Vai trò',
                 'phone' => 'Số điện thoại',
                 'avatar_url' => 'Ảnh đại diện',
                 'status' => 'Trạng thái',
@@ -110,22 +107,24 @@ class AdminAccountController extends Controller
         );
 
         try {
-            $validated['password'] = Hash::make($validated['password']);
+            if (isset($validated['password'])) {
+                $validated['password'] = Hash::make($validated['password']);
+            }
 
             if ($request->hasFile('avatar_url')) {
                 $file = $request->file('avatar_url');
 
-                $path = $file->store('Avatar_Admin', 'public');
+                $path = $file->store('Avatar_user', 'public');
                 $validated['avatar_url'] = $path;
             }
 
-            $admin = Admin::create($validated);
-            $admin->avatar_full_url = Storage::url($admin->avatar_url);
+            $user = User::create($validated);
+            $user->avatar_full_url = Storage::url($user->avatar_url);
 
             return response()->json([
                 'status' => true,
-                'message' => 'Thêm tài khoản quản trị thành công',
-                'data' => $admin
+                'message' => 'Thêm tài khoản khách hàng thành công',
+                'data' => $user
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
@@ -140,9 +139,9 @@ class AdminAccountController extends Controller
      */
     public function show(string $id)
     {
-        $admin = Admin::findOrFail($id);
+        $user = User::findOrFail($id);
 
-        return response()->json($admin);
+        return response()->json($user);
     }
 
     /**
@@ -150,46 +149,37 @@ class AdminAccountController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $admin = Admin::findOrFail($id);
+        $user = User::findOrFail($id);
 
         $validated = $request->validate(
             [
-                'fullname' => [
+                'fullName' => [
                     'sometimes',
                     'required',
                     'string',
-                    'max:100',
+                    'max:150',
                 ],
                 'email' => [
                     'sometimes',
                     'required',
                     'email',
                     'string',
-                    'max:100',
-                    Rule::unique('admins', 'email')->ignore($id)->whereNull('deleted_at')
+                    'max:150',
+                    Rule::unique('users', 'email')->ignore($id)->whereNull('deleted_at')
+                ],
+                'phone' => [
+                    'nullable',
+                    'string',
+                    'max:20',
+                    'regex:/^[0-9]+$/',
+                    Rule::unique('users', 'phone')->ignore($id)->whereNull('deleted_at')
                 ],
                 'password' => [
-                    'sometimes',
-                    'required',
+                    'nullable',
                     'string',
                     'max:255',
                     'min:8',
                     'regex:/^(?=.*[A-Z])(?=.*\d).+$/'
-                ],
-                'role_id' => [ 
-                    'sometimes',
-                    'required',
-                    'integer',
-                    'min:0',
-                    'exists:roles,id'
-                ],
-                'phone' => [
-                    'sometimes',
-                    'required',
-                    'string',
-                    'max:20',
-                    'regex:/^[0-9]+$/',
-                    Rule::unique('admins', 'phone')->ignore($id)->whereNull('deleted_at')
                 ],
                 'avatar_url' => [
                     'nullable',
@@ -201,21 +191,25 @@ class AdminAccountController extends Controller
                     'sometimes',
                     'required',
                     'string',
-                    'max:30',
+                    'max:20',
                 ],
-                'address' => [
+                'birthday' => [
+                    'nullable',
+                    'date',
+                ],
+                'sex' => [
                     'nullable',
                     'string',
-                    'max:255'
+                    'max:10'
                 ]
             ],
             [
                 'required' => ':attribute không được để trống',
                 'email.unique' => 'Email bạn nhập đã tồn tại',
-                'email.email' => 'Email không đúng định dạng',
-                'password.regex' => 'Mật khẩu phải chứa ít nhất 1 chữ hoa và 1 số',
-                'phone.unique' => 'Số điện thoại đã tồn tại',
+                'email.email' => 'Email bạn nhập không đúng định dạng',
+                'phone.unique' => 'Số điện thoại bạn nhập đã tồn tại',
                 'phone.regex' => 'Số điện thoại chỉ được chứa ký tự số',
+                'password.regex' => 'Mật khẩu phải chứa ít nhất 1 chữ hoa và 1 số',
                 'exists' => ':attribute không tồn tại trong hệ thống',
                 'integer' => ':attribute phải là số',
                 'image' => ':attribute không phải là định dạng hình ảnh',
@@ -233,7 +227,6 @@ class AdminAccountController extends Controller
                 'fullname' => 'Họ và tên',
                 'email' => 'Email',
                 'password' => 'Mật khẩu',
-                'role_id' => 'Vai trò',
                 'phone' => 'Số điện thoại',
                 'avatar_url' => 'Ảnh đại diện',
                 'status' => 'Trạng thái',
@@ -247,22 +240,21 @@ class AdminAccountController extends Controller
             }
 
             if ($request->hasFile('avatar_url')) {
-                if ($admin->avatar_url && Storage::disk('public')->exists($admin->avatar_url)) {
-                    Storage::disk('public')->delete($admin->avatar_url);
+                if ($user->avatar_url && Storage::disk('public')->exists($user->avatar_url)) {
+                    Storage::disk('public')->delete($user->avatar_url);
                 }
 
-                $path = $request->file('avatar_url')->store('Avatar_Admin', 'public');
+                $path = $request->file('avatar_url')->store('Avatar_user', 'public');
                 $validated['avatar_url'] = $path;
             }
 
-            $admin->update($validated);
-
-            $admin->avatar_full_url = Storage::url($admin->avatar_url);
+            $user->update($validated);
+            $user->avatar_full_url = Storage::url($user->avatar_url);
 
             return response()->json([
                 'status' => true,
                 'message' => 'Cập nhật thông tin tài khoản thành công',
-                'data' => $admin
+                'data' => $user
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -277,18 +269,18 @@ class AdminAccountController extends Controller
      */
     public function destroy(string $id)
     {
-        $admin = Admin::findOrFail($id);
+        $user = User::findOrFail($id);
 
         try {
-            if ($admin->avatar_url && Storage::disk('public')->exists($admin->avatar_url)) {
-                Storage::disk('public')->delete($admin->avatar_url);
+            if ($user->avatar_url && Storage::disk('public')->exists($user->avatar_url)) {
+                Storage::disk('public')->delete($user->avatar_url);
             }
 
-            $admin->delete();
+            $user->delete();
 
             return response()->json([
                 'status' => true,
-                'message' => 'Xóa tài khoản thành công'
+                'message' => 'Xóa tài khoản khách hàng thành công'
             ]);
         } catch (\Exception $e) {
             return response()->json([
